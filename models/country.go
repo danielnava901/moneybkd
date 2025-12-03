@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Country struct {
-	ID        string    `json:"id" bson:"_id,omitempty"`
+	ID        int64     `json:"id,omitempty" bson:"_id,omitempty"`
 	Name      string    `json:"name" bson:"name"`
 	Symbol    string    `json:"symbol" bson:"symbol"`
 	Code      string    `json:"code" bson:"code"`

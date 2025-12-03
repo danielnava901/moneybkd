@@ -2,75 +2,81 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"moneybkd/models"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	supabase "github.com/supabase-community/supabase-go"
 )
 
 type CountryRepository interface {
 	FindByCode(ctx context.Context, code string) (*models.Country, error)
-	Insert(ctx context.Context, country *models.Country) error
-	Update(ctx context.Context, country *models.Country) error
+	Insert(ctx context.Context, c *models.Country) error
+	Update(ctx context.Context, c *models.Country) error
 	GetAll(ctx context.Context) ([]*models.Country, error)
 }
 
-type countryReporsitory struct {
-	col *mongo.Collection
+type countryRepo struct {
+	client *supabase.Client
 }
 
-func NewCountryRepository(db *mongo.Database) CountryRepository {
-	return &countryReporsitory{
-		col: db.Collection("countries"),
+func NewCountryRepository(c *supabase.Client) CountryRepository {
+	return &countryRepo{client: c}
+}
+
+func (r *countryRepo) GetAll(ctx context.Context) ([]*models.Country, error) {
+	data, _, err := r.client.From("countries").Select("*", "", false).Execute()
+
+	var rows []models.Country
+	if err := json.Unmarshal(data, &rows); err != nil {
+		return nil, err
 	}
+
+	result := make([]*models.Country, len(rows))
+	for i := range rows {
+		result[i] = &rows[i]
+	}
+
+	return result, err
 }
 
-func (r *countryReporsitory) GetAll(ctx context.Context) ([]*models.Country, error) {
-	cursor, err := r.col.Find(ctx, bson.M{})
+func (r *countryRepo) FindByCode(ctx context.Context, code string) (*models.Country, error) {
+
+	data, _, err := r.client.From("countries").
+		Select("*", "exact", false).
+		Eq("code", code).
+		Limit(1, "").
+		Execute()
+
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
 
-	var countries []*models.Country
-
-	for cursor.Next(ctx) {
-		var c models.Country
-		if err := cursor.Decode(&c); err != nil {
-			return nil, err
-		}
-		countries = append(countries, &c)
-	}
-
-	if err := cursor.Err(); err != nil {
+	log.Println("RAW: ", string(data))
+	var rows []models.Country
+	if err := json.Unmarshal(data, &rows); err != nil {
 		return nil, err
 	}
 
-	return countries, nil
-}
-
-func (r *countryReporsitory) FindByCode(ctx context.Context, code string) (*models.Country, error) {
-	var c models.Country
-	err := r.col.FindOne(ctx, bson.M{"code": code}).Decode(&c)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
+	if len(rows) == 0 {
+		return nil, nil // no encontrado
 	}
 
-	return &c, err
+	return &rows[0], nil
 }
 
-func (r *countryReporsitory) Insert(ctx context.Context, country *models.Country) error {
-	_, err := r.col.InsertOne(ctx, country)
+func (r *countryRepo) Insert(ctx context.Context, c *models.Country) error {
+	_, _, err := r.client.From("countries").Insert(c, false, "", "", "").Execute()
+
 	return err
 }
 
-func (r *countryReporsitory) Update(ctx context.Context, country *models.Country) error {
-	update := bson.M{
-		"$set": bson.M{
-			"value": country.Value,
-		},
-	}
+func (r *countryRepo) Update(ctx context.Context, c *models.Country) error {
+	_, _, err := r.client.From("countries").
+		Update(map[string]any{
+			"value": c.Value,
+		}, "", "").Eq("code", c.Code).
+		Execute()
 
-	_, err := r.col.UpdateOne(ctx, bson.M{"code": country.Code}, update)
 	return err
 }

@@ -8,20 +8,25 @@ import (
 	"moneybkd/repository"
 	"moneybkd/service"
 	"net/http"
+	"os"
 
 	"github.com/go-co-op/gocron/v2"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
+	log.Println("Starting main...")
+	//config.ConnectMongo("mongodb://localhost:27017", "currencydb")
+	config.ConnectSupabase()
+	log.Println("Starting supabase...")
+	countryRepo := repository.NewCountryRepository(config.Supabase)
+	countryHistory := repository.NewHistoryRepository(config.Supabase)
+	apiKey := os.Getenv("EXCHANGE_API_KEY")
 
-	config.ConnectMongo("mongodb://localhost:27017", "currencydb")
+	log.Println(fmt.Printf("Starting apikay... %s", apiKey))
 
-	countryRepo := repository.NewCountryRepository(config.Mongo)
-	countryHistory := repository.NewHistoryRepository(config.Mongo)
-
-	apiKey := "fca_live_gd2iQfq2GqTj6sifNV284xdYh6ekp53gXkOhMwjB"
 	svc := service.NewCurrencyService(countryRepo, countryHistory, apiKey)
 	ctrl := controllers.NewCurrencyController(svc)
 
@@ -61,8 +66,9 @@ func StartCron(svc service.CurrencyService) error {
 		return fmt.Errorf("cron failed %s", err.Error())
 	}
 
-	s := "0 1,13 * * *"
+	s := "0 1,7,13,19 * * *"
 	log.Printf("starting UpdateDB with cron: %s", s)
+
 	job, err := c.NewJob(gocron.CronJob(s, false), gocron.NewTask(svc.UpdateDB))
 
 	if err != nil {
