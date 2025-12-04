@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -23,14 +22,11 @@ func New() *echo.Echo {
 	ctrl := controllers.NewCurrencyController(svc)
 
 	e := echo.New()
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
-	}))
+	e.Use(middleware.CORS())
 
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
-			"data": "Data",
+			"data": "Data Ok",
 		})
 	})
 	e.GET("/currency/:code", ctrl.GetCurrency)

@@ -1,4 +1,4 @@
-package api
+package cron
 
 import (
 	"fmt"
@@ -10,15 +10,15 @@ import (
 	"os"
 )
 
-func HandlerFunc(w http.ResponseWriter, r *http.Request) {
+func Handler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	// Your cron job logic here
-	fmt.Println("Cron job executed!")
-	fmt.Fprintf(w, "Cron job executed successfully!")
+	config.ConnectSupabase()
+
 	countryRepo := repository.NewCountryRepository(config.Supabase)
 	countryHistory := repository.NewHistoryRepository(config.Supabase)
 

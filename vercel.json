@@ -1,14 +1,8 @@
 {
     "crons": [
         {
-            "path": "/api/update_db_cron",
+            "path": "/api/cron/update_db_cron",
             "schedule": "0 1 * * *"
-        }
-    ],
-    "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/api"
         }
     ]
 }
