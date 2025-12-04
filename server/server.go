@@ -29,7 +29,6 @@ func New() *echo.Echo {
 
 	log.Println("INIT NEW SERVER..............4.")
 	api := e.Group("/api")
-
 	api.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
 			"data": "Data Ok",
