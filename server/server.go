@@ -1,8 +1,6 @@
 package server
 
 import (
-	"fmt"
-	"log"
 	"moneybkd/config"
 	"moneybkd/controllers"
 	"moneybkd/repository"
@@ -17,12 +15,9 @@ import (
 
 func New() *echo.Echo {
 	config.ConnectSupabase()
-	log.Println("Starting supabase...")
 	countryRepo := repository.NewCountryRepository(config.Supabase)
 	countryHistory := repository.NewHistoryRepository(config.Supabase)
 	apiKey := os.Getenv("EXCHANGE_API_KEY")
-
-	log.Println(fmt.Printf("Starting apikay... %s", apiKey))
 
 	svc := service.NewCurrencyService(countryRepo, countryHistory, apiKey)
 	ctrl := controllers.NewCurrencyController(svc)

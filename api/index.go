@@ -5,8 +5,7 @@ import (
 	"net/http"
 )
 
-var echo = server.New()
-
 func Handler(w http.ResponseWriter, r *http.Request) {
+	var echo = server.New()
 	echo.ServeHTTP(w, r)
 }
