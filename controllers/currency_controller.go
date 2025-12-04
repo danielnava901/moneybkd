@@ -46,6 +46,8 @@ func (ctr *CurrencyController) GetHistory(ctx echo.Context) error {
 
 	log.Println("GET history 1")
 	h, err := ctr.svc.GetHistoryByCode(ctx.Request().Context(), code)
+	log.Println("GET history 1")
+	log.Println(h)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 	}

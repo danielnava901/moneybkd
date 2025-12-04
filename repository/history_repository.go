@@ -3,10 +3,19 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"moneybkd/models"
+	"time"
 
 	supabase "github.com/supabase-community/supabase-go"
 )
+
+type apiItem struct {
+	CountryCode string  `json:"country_code"`
+	CreatedAt   string  `json:"created_at"`
+	CountryName string  `json:"country_name"`
+	Value       float64 `json:"value"`
+}
 
 type HistoryRepository interface {
 	Insert(ctx context.Context, h *models.History) error
@@ -33,15 +42,22 @@ func (r *historyRepo) GetByCode(ctx context.Context, code string) ([]*models.His
 		"code_input": code,
 	})
 
-	var rows []models.History
-	if err := json.Unmarshal([]byte(resp), &rows); err != nil {
-		return nil, err
+	log.Println("Get by code repo:")
+	log.Println(resp)
+	var items []apiItem
+	json.Unmarshal([]byte(resp), &items)
+
+	var histories []*models.History
+	for _, it := range items {
+		t, _ := time.Parse("2006-01-02", it.CreatedAt)
+
+		histories = append(histories, &models.History{
+			CountryCode: it.CountryCode,
+			CountryName: it.CountryName,
+			Value:       it.Value,
+			CreatedAt:   t,
+		})
 	}
 
-	result := make([]*models.History, len(rows))
-	for i := range rows {
-		result[i] = &rows[i]
-	}
-
-	return result, nil
+	return histories, nil
 }

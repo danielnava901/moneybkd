@@ -50,7 +50,7 @@ func main() {
 		log.Fatalf("Init countries failed %s", err.Error())
 	}
 
-	go svc.UpdateDB()
+	//go svc.UpdateDB()
 
 	log.Println("Starting cron...")
 	if err := StartCron(svc); err != nil {
