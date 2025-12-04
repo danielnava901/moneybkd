@@ -28,7 +28,7 @@ func New() *echo.Echo {
 	e.Use(middleware.CORS())
 
 	log.Println("INIT NEW SERVER..............4.")
-	e.GET("/", func(c echo.Context) error {
+	e.GET("/api", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
 			"data": "Data Ok",
 		})
