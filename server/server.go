@@ -28,16 +28,18 @@ func New() *echo.Echo {
 	e.Use(middleware.CORS())
 
 	log.Println("INIT NEW SERVER..............4.")
-	e.GET("/api", func(c echo.Context) error {
+	api := e.Group("/api")
+
+	api.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]string{
 			"data": "Data Ok",
 		})
 	})
 
 	log.Println("INIT NEW SERVER..............5.")
-	e.GET("/currency/:code", ctrl.GetCurrency)
-	e.GET("/currency/:code/history", ctrl.GetHistory)
-	e.GET("/countries", ctrl.GetCountries)
+	api.GET("/currency/:code", ctrl.GetCurrency)
+	api.GET("/currency/:code/history", ctrl.GetHistory)
+	api.GET("/countries", ctrl.GetCountries)
 
 	return e
 }
