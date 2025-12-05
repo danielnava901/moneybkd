@@ -19,7 +19,7 @@ type apiItem struct {
 
 type HistoryRepository interface {
 	Insert(ctx context.Context, h *models.History) error
-	GetByCode(ctx context.Context, code string) ([]*models.History, error)
+	GetByCode(ctx context.Context, code string, filter string) ([]*models.History, error)
 }
 
 type historyRepo struct {
@@ -36,14 +36,15 @@ func (r *historyRepo) Insert(ctx context.Context, h *models.History) error {
 	return err
 }
 
-func (r *historyRepo) GetByCode(ctx context.Context, code string) ([]*models.History, error) {
-	// llamada al RPC
+func (r *historyRepo) GetByCode(ctx context.Context, code string, filter string) ([]*models.History, error) {
+
+	log.Println("Antes de RPC")
+	log.Println(filter)
 	resp := r.client.Rpc("get_history_by_code", "", map[string]any{
 		"code_input": code,
+		"from_date":  filter,
 	})
 
-	log.Println("Get by code repo:")
-	log.Println(resp)
 	var items []apiItem
 	json.Unmarshal([]byte(resp), &items)
 

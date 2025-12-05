@@ -16,7 +16,7 @@ type CurrencyService interface {
 	UpdateDB() error
 	InitCountriesInsert() error
 	GetCountries(ctx context.Context) ([]*models.Country, error)
-	GetHistoryByCode(ctx context.Context, code string) ([]*models.History, error)
+	GetHistoryByCode(ctx context.Context, code string, filter string) ([]*models.History, error)
 }
 
 type APIResponse struct {
@@ -75,14 +75,12 @@ func (s *currencyService) GetCurrency(ctx context.Context, code string) (*models
 	return c, nil
 }
 
-func (s *currencyService) GetHistoryByCode(ctx context.Context, code string) ([]*models.History, error) {
-	log.Println("GET history 2")
+func (s *currencyService) GetHistoryByCode(ctx context.Context, code string, filter string) ([]*models.History, error) {
 	if code == "" {
 		return nil, errors.New("missing country code")
 	}
 
-	log.Println("GET history 3")
-	history, err := s.historyRepo.GetByCode(ctx, code)
+	history, err := s.historyRepo.GetByCode(ctx, code, filter)
 	if err != nil {
 		return nil, err
 	}

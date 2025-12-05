@@ -4,6 +4,8 @@ import (
 	"log"
 	"moneybkd/service"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -43,9 +45,25 @@ func (ctr *CurrencyController) GetCountries(c echo.Context) error {
 
 func (ctr *CurrencyController) GetHistory(ctx echo.Context) error {
 	code := ctx.Param("code")
+	dParam := ctx.QueryParam("d")
 
-	log.Println("GET history 1")
-	h, err := ctr.svc.GetHistoryByCode(ctx.Request().Context(), code)
+	if dParam == "" {
+		dParam = "7"
+	}
+
+	days, err := strconv.Atoi(dParam)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid number for d",
+		})
+	}
+
+	fromDate := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
+
+	log.Println("FROM DATE")
+	log.Println(fromDate)
+	h, err := ctr.svc.GetHistoryByCode(ctx.Request().Context(), code, fromDate)
+
 	log.Println("GET history 1")
 	log.Println(h)
 	if err != nil {
