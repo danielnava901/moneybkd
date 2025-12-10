@@ -38,14 +38,14 @@ func (r *historyRepo) Insert(ctx context.Context, h *models.History) error {
 
 func (r *historyRepo) GetByCode(ctx context.Context, code string, filter string) ([]*models.History, error) {
 
-	log.Println("Antes de RPC")
-	log.Println(filter)
 	resp := r.client.Rpc("get_history_by_code", "", map[string]any{
 		"code_input": code,
 		"from_date":  filter,
 	})
 
 	var items []apiItem
+	log.Println("Antes de RPC......")
+	log.Println(resp)
 	json.Unmarshal([]byte(resp), &items)
 
 	var histories []*models.History

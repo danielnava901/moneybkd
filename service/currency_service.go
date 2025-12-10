@@ -81,6 +81,12 @@ func (s *currencyService) GetHistoryByCode(ctx context.Context, code string, fil
 	}
 
 	history, err := s.historyRepo.GetByCode(ctx, code, filter)
+
+	log.Println("HISTORY:::::::")
+	log.Println(history)
+	log.Println("HISTORY::::::: END")
+	log.Println(err)
+	log.Println("ERR::::::: END")
 	if err != nil {
 		return nil, err
 	}
