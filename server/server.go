@@ -20,6 +20,7 @@ func New() *echo.Echo {
 	apiKey := os.Getenv("EXCHANGE_API_KEY")
 
 	svc := service.NewCurrencyService(countryRepo, countryHistory, apiKey)
+
 	ctrl := controllers.NewCurrencyController(svc)
 
 	e := echo.New()

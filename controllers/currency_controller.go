@@ -46,9 +46,14 @@ func (ctr *CurrencyController) GetCountries(c echo.Context) error {
 func (ctr *CurrencyController) GetHistory(ctx echo.Context) error {
 	code := ctx.Param("code")
 	dParam := ctx.QueryParam("d")
+	hParam := ctx.QueryParam("h")
 
 	if dParam == "" {
-		dParam = "7"
+		dParam = "-7"
+	}
+
+	if hParam == "" {
+		dParam = "0"
 	}
 
 	days, err := strconv.Atoi(dParam)
@@ -58,11 +63,21 @@ func (ctr *CurrencyController) GetHistory(ctx echo.Context) error {
 		})
 	}
 
-	fromDate := time.Now().AddDate(0, 0, -days).Format("2006-01-02")
+	hdays, err := strconv.Atoi(hParam)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid number for d",
+		})
+	}
+
+	fromDate := time.Now().AddDate(0, 0, days).Format("2006-01-02")
+	toDate := time.Now().AddDate(0, 0, hdays).Format("2006-01-02")
 
 	log.Println("FROM DATE")
 	log.Println(fromDate)
-	h, err := ctr.svc.GetHistoryByCode(ctx.Request().Context(), code, fromDate)
+	log.Println("To DATE")
+	log.Println(toDate)
+	h, err := ctr.svc.GetHistoryByCode(ctx.Request().Context(), code, fromDate, toDate)
 
 	log.Println("GET history 1")
 	log.Println(h)

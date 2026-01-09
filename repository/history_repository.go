@@ -19,7 +19,7 @@ type apiItem struct {
 
 type HistoryRepository interface {
 	Insert(ctx context.Context, h *models.History) error
-	GetByCode(ctx context.Context, code string, filter string) ([]*models.History, error)
+	GetByCode(ctx context.Context, code string, from string, to string) ([]*models.History, error)
 }
 
 type historyRepo struct {
@@ -36,11 +36,12 @@ func (r *historyRepo) Insert(ctx context.Context, h *models.History) error {
 	return err
 }
 
-func (r *historyRepo) GetByCode(ctx context.Context, code string, filter string) ([]*models.History, error) {
+func (r *historyRepo) GetByCode(ctx context.Context, code string, from string, to string) ([]*models.History, error) {
 
-	resp := r.client.Rpc("get_history_by_code", "", map[string]any{
+	resp := r.client.Rpc("get_history_by_code_duplicate", "", map[string]any{
 		"code_input": code,
-		"from_date":  filter,
+		"from_date":  from,
+		"to_date":    to,
 	})
 
 	var items []apiItem

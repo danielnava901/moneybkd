@@ -25,7 +25,10 @@ func NewCountryRepository(c *supabase.Client) CountryRepository {
 }
 
 func (r *countryRepo) GetAll(ctx context.Context) ([]*models.Country, error) {
+	log.Println("Get all countries")
 	data, _, err := r.client.From("countries").Select("*", "", false).Execute()
+	log.Println("Data")
+	log.Println(data)
 
 	var rows []models.Country
 	if err := json.Unmarshal(data, &rows); err != nil {
